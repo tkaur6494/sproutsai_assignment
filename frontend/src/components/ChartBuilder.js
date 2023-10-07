@@ -1,10 +1,18 @@
-import { Row, Col, ListGroup, Card, Form, Modal } from "react-bootstrap";
+import {
+  Row,
+  Col,
+  ListGroup,
+  Card,
+  Form,
+  Modal,
+  Button,
+} from "react-bootstrap";
 import { useState } from "react";
 import FilterModal from "./chartbuilder/FilterModal";
 import Chart from "./chartbuilder/Chart";
 import { SketchPicker } from "react-color";
 
-const ChartBuilder = ({ showChartBuilder, setShowChartBuilder }) => {
+const ChartBuilder = ({ showChartBuilder, setShowChartBuilder, addChartToDashboard}) => {
   const list_dimensions = [
     "Gender",
     "Race/Ethnicity",
@@ -23,7 +31,7 @@ const ChartBuilder = ({ showChartBuilder, setShowChartBuilder }) => {
   const [columnFilter, setColumnFilter] = useState(" ");
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [columnNameList, setColumnNameList] = useState(list_dimensions);
-  const [chartColor, setChartColor] = useState('#2CAFFE');
+  const [chartColor, setChartColor] = useState("#2CAFFE");
   const [chartOptions, setChartOptions] = useState({});
 
   const onDragStart = (ev, columnName) => {
@@ -95,6 +103,11 @@ const ChartBuilder = ({ showChartBuilder, setShowChartBuilder }) => {
       ],
     });
   };
+
+  const handleAddToDashboard = (chartOptions) => {
+    addChartToDashboard(chartOptions)
+    setShowChartBuilder(false)
+  }
 
   return (
     <Modal show={showChartBuilder} fullscreen={true}>
@@ -183,7 +196,7 @@ const ChartBuilder = ({ showChartBuilder, setShowChartBuilder }) => {
                           onClick={() => setShowColorPicker(true)}
                           className="component-color-picker"
                           style={{
-                            background: `${chartColor}`
+                            background: `${chartColor}`,
                           }}
                         >
                           <div />
@@ -243,9 +256,16 @@ const ChartBuilder = ({ showChartBuilder, setShowChartBuilder }) => {
               <Card.Header>Visualization</Card.Header>
               <Card.Body>
                 {xAxisList.length >= 1 && yAxisList.length >= 1 ? (
-                  <Row className="component-chart-container">
-                    <Chart chartOptions={chartOptions} />
-                  </Row>
+                  <>
+                    <Row className="component-chart-container">
+                      <Chart chartOptions={chartOptions} />
+                    </Row>
+                    <Row>
+                      <Col md={{ span: 3, offset: 9 }}>
+                        <Button onClick={()=>{handleAddToDashboard(chartOptions)}}>Add to Dashboard</Button>
+                      </Col>
+                    </Row>
+                  </>
                 ) : (
                   <p>
                     Please select atleast one column in the x-axis and one

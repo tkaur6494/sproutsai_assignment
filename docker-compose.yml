@@ -13,11 +13,12 @@ services:
     build: ./backend
     restart: unless-stopped
     ports:
-      - 3000:3000
+      - 8080:8080
     environment:
       MYSQL_HOST: mysqldb
       MYSQL_PASS: I5HeAwlhmru658zuLNNlXYgO8RLSZ17cs61yUDV
       JWT_SECRET: "ifR?'F9hbg!Wr661^Iy(y!`A7"
+      PORT: 8080
   frontend:
     depends_on:
       - mysqldb
@@ -25,7 +26,7 @@ services:
     build: 
       context: ./frontend
       args:
-        REACT_APP_API_BASE_PATH: http://localhost:3000/api
+        REACT_APP_API_BASE_PATH: http://localhost:8080/api
     restart: unless-stopped
     ports:
       - 80:80
