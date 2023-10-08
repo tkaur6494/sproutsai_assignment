@@ -7,12 +7,17 @@ import {
   Modal,
   Button,
 } from "react-bootstrap";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import FilterModal from "./chartbuilder/FilterModal";
 import Chart from "./chartbuilder/Chart";
 import { SketchPicker } from "react-color";
+import axios from "axios";
 
-const ChartBuilder = ({ showChartBuilder, setShowChartBuilder, addChartToDashboard}) => {
+const ChartBuilder = ({
+  showChartBuilder,
+  setShowChartBuilder,
+  addChartToDashboard,
+}) => {
   const list_dimensions = [
     "Gender",
     "Race/Ethnicity",
@@ -33,6 +38,9 @@ const ChartBuilder = ({ showChartBuilder, setShowChartBuilder, addChartToDashboa
   const [columnNameList, setColumnNameList] = useState(list_dimensions);
   const [chartColor, setChartColor] = useState("#2CAFFE");
   const [chartOptions, setChartOptions] = useState({});
+
+  useEffect(() => {
+  }, []);
 
   const onDragStart = (ev, columnName) => {
     ev.dataTransfer.setData("columnName", columnName);
@@ -105,9 +113,9 @@ const ChartBuilder = ({ showChartBuilder, setShowChartBuilder, addChartToDashboa
   };
 
   const handleAddToDashboard = (chartOptions) => {
-    addChartToDashboard(chartOptions)
-    setShowChartBuilder(false)
-  }
+    addChartToDashboard(chartOptions);
+    setShowChartBuilder(false);
+  };
 
   return (
     <Modal show={showChartBuilder} fullscreen={true}>
@@ -262,7 +270,13 @@ const ChartBuilder = ({ showChartBuilder, setShowChartBuilder, addChartToDashboa
                     </Row>
                     <Row>
                       <Col md={{ span: 3, offset: 9 }}>
-                        <Button onClick={()=>{handleAddToDashboard(chartOptions)}}>Add to Dashboard</Button>
+                        <Button
+                          onClick={() => {
+                            handleAddToDashboard(chartOptions);
+                          }}
+                        >
+                          Add to Dashboard
+                        </Button>
                       </Col>
                     </Row>
                   </>

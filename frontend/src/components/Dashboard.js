@@ -1,39 +1,35 @@
-import React, { useRef, useEffect, useState } from "react";
-import RGL, { WidthProvider } from "react-grid-layout";
+import React from "react";
+import { WidthProvider, Responsive } from "react-grid-layout";
 import Chart from "./chartbuilder/Chart";
 import { Card } from "react-bootstrap";
 
-const ReactGridLayout = WidthProvider(RGL);
+
+const ReactGridLayout = WidthProvider(Responsive);
 
 const generateLayout = (gridChartConf) => {
   return gridChartConf.map((item) => item?.grid);
 };
 
-const Dashboard = ({ gridChartConf, onChartResize }) => {
-  const chartComponent = useRef(null);
-  const [isResized, setIsResized] = useState(false)
-    useEffect(()=>{
-        console.log(chartComponent)
-    },[chartComponent])
-
+const Dashboard = ({ gridChartConf }) => {
   return (
     <div className="App">
       <ReactGridLayout
         className="layout"
         layout={generateLayout(gridChartConf)}
-        cols={12}
-        rowHeight={60}
-        width={1200}
+        cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
+        containerPadding={[10, 10]}
+        margin={[10, 10]}
+        rowHeight={330}
+        isDraggable={true}
+        resizeHandles={["s", "w", "e", "n", "sw", "nw", "se", "ne"]}
         allowOverlap={false}
         isResizable={true}
-        preventCollision={false}
-        onResizeStop={(item) => {setIsResized(true)}}
-            // onChartResize(item)}
+        preventCollision={true}
       >
         {gridChartConf.map((item) => {
           return (
             <Card key={item?.grid?.i} className="component-chart-container">
-              <Chart chartOptions={item?.chartOptions} innerRef={chartComponent}/>
+              <Chart chartOptions={item?.chartOptions}/>
             </Card>
           );
         })}

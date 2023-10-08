@@ -1,14 +1,25 @@
 import "./App.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Container, Navbar, Button } from "react-bootstrap";
 import ChartBuilder from "./components/ChartBuilder";
 import Dashboard from "./components/Dashboard";
 import { v4 as uuidv4 } from "uuid";
+import { useCookies } from "react-cookie";
+import axios from "axios";
+
 
 
 function App() {
+  
+  const [cookies] = useCookies(["auth-cookie"]);
   const [showChartBuilder, setShowChartBuilder] = useState(false);
   const [gridChartConf, setGridChartConf] = useState([]);
+  useEffect(() => {
+    axios.interceptors.request.use(function (config) {
+      config.headers.Authorization = `Bearer ${cookies["auth-cookie"].token}`;
+      return config;
+    })
+  }, [cookies]);
   const addChartToDashboard = (chartConf) => {
     let positionX = 0;
     let positionY = 0;
@@ -25,7 +36,7 @@ function App() {
         grid: {
           i: uuidv4(),
           x: positionX,
-          y: 0,
+          y: positionY,
           h: 6,
           w: 4,
           isResizable: true,
@@ -36,14 +47,6 @@ function App() {
     ]);
   };
 
-  const onChartResize = (resizedObject) => {
-    let test = gridChartConf.map((item, index)=>{
-      item.grid = resizedObject[index]
-      return item  
-    })
-    
-    setGridChartConf(test)
-  };
 
   return (
     <Container fluid={true}>
@@ -73,7 +76,7 @@ function App() {
           }
         />
       )}
-      <Dashboard gridChartConf={gridChartConf} onChartResize={onChartResize} />
+      <Dashboard gridChartConf={gridChartConf} />
     </Container>
   );
 }
