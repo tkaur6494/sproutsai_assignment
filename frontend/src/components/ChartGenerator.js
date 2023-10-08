@@ -48,7 +48,7 @@ const ChartGenerator = ({
     let columnName = ev.dataTransfer.getData("columnName");
     if (
       !xAxisList.filter((item) => item === columnName).length > 0 &&
-      xAxisList.length == 0
+      xAxisList.length === 0
     ) {
       setXAxisList([...xAxisList, columnName]);
     }
@@ -118,15 +118,15 @@ const ChartGenerator = ({
   };
 
   const removeXAxisElement = (xAxisItem) => {
-    setXAxisList(xAxisList.filter((item) => item != xAxisItem));
+    setXAxisList(xAxisList.filter((item) => item !== xAxisItem));
   };
 
   const removeYAxisElement = (yAxisItem) => {
-    setYAxisList(yAxisList.filter((item) => item?.column != yAxisItem));
+    setYAxisList(yAxisList.filter((item) => item?.column !== yAxisItem));
   };
 
   const removeFilterElement = (filterItem) => {
-    setFilterList(filterList.filter((item) => item?.column != filterItem));
+    setFilterList(filterList.filter((item) => item?.column !== filterItem));
   };
 
   return (
@@ -175,7 +175,7 @@ const ChartGenerator = ({
                 <Card.Body className="draggable-container">
                   {xAxisList.map((xAxisItem) => {
                     return (
-                      <div className="component-draggable" key={xAxisItem}>
+                      <Row className="component-draggable" key={xAxisItem}>
                         <Col md={11}>{xAxisItem}</Col>
                         <Col md={1}>
                           <FontAwesomeIcon
@@ -184,7 +184,7 @@ const ChartGenerator = ({
                             onClick={() => removeXAxisElement(xAxisItem)}
                           />
                         </Col>
-                      </div>
+                      </Row>
                     );
                   })}
                 </Card.Body>
@@ -218,11 +218,26 @@ const ChartGenerator = ({
                 <Card.Body className="draggable-container">
                   {filterList.map((item) => {
                     return (
-                      <div className="component-draggable" key={item?.column}>
+                      <Row className="component-draggable" key={item?.column}>
                         <Col md={10}>{item?.column}</Col>
                         <OverlayTrigger
                           overlay={
-                            <Tooltip>{`Column Name: ${item?.column} \r\n Condition: ${item?.condition} \r\n Values: ${item?.value}`}</Tooltip>
+                            <Tooltip>
+                              <div className="component-filter-tooltip">
+                                <p>
+                                  <b>Column: </b>
+                                  {item?.column}
+                                </p>
+                                <p>
+                                  <b>Condition: </b>
+                                  {item?.condition}
+                                </p>
+                                <p>
+                                  <b>Values: </b>
+                                  {item?.value}
+                                </p>
+                              </div>
+                            </Tooltip>
                           }
                         >
                           <Col md={1}>
@@ -236,7 +251,7 @@ const ChartGenerator = ({
                             onClick={() => removeFilterElement(item?.column)}
                           />
                         </Col>
-                      </div>
+                      </Row>
                     );
                   })}
                 </Card.Body>
@@ -252,8 +267,8 @@ const ChartGenerator = ({
           <Col md={7}>
             <Card className="component-card">
               <Card.Header>Visualization</Card.Header>
-              <Card.Body>
-                {xAxisList.length >= 1 && yAxisList.length >= 1 ? (
+              <Card.Body className="no-data" nodata="Please select atleast one xAxis and one yAxis to continue.">
+                {xAxisList.length >= 1 && yAxisList.length >= 1 && (
                   <>
                     <Row className="component-chart-container">
                       <Chart
@@ -285,11 +300,6 @@ const ChartGenerator = ({
                       </Col>
                     </Row>
                   </>
-                ) : (
-                  <p>
-                    Please select atleast one column in the x-axis and one
-                    column in the y-axis.
-                  </p>
                 )}
               </Card.Body>
             </Card>

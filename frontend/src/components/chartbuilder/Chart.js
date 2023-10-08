@@ -39,7 +39,7 @@ const Chart = ({query_data}) => {
 
   return (
     <>
-      {chartOptions.series?.length!=0 ? <HighchartsReact
+      {chartOptions.series?.length!==0 ? <HighchartsReact
         highcharts={Highcharts}
         options={chartOptions}
         

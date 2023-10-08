@@ -1,4 +1,4 @@
-import { Row, Col, Container, Form, Modal, Button } from "react-bootstrap";
+import { Row, Col, Form, Modal, Button } from "react-bootstrap";
 import { useState } from "react";
 
 const FilterModal = ({ columnName, showFilterModal, onCancelModel, onSaveFilter }) => {

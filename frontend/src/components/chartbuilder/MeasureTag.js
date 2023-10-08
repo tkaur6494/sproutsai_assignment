@@ -14,7 +14,7 @@ const MeasureTag = ({
   return yAxisList.map((yAxisItem) => {
     return (
       <Row className="component-draggable" key={yAxisItem?.column}>
-        <Col md={5}>
+        <Col md={4}>
           <span className="component-draggable-text">{yAxisItem?.column}</span>
         </Col>
         <Col md={5}>

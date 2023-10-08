@@ -64,10 +64,10 @@ module.exports = function (connection) {
 
     return {
         register: function (req, res, next) {
-            if (!req.body.password || !req.body.email || req.body.password.trim().length == 0 || req.body.email.trim().length == 0 || (passwordStrength(req.body.password.trim()).value != 'Strong')) {
+            if (!req.body.password || !req.body.email ||  !req.body.name || req.body.password.trim().length == 0 || req.body.email.trim().length == 0 || req.body.name.trim().length == 0 || (passwordStrength(req.body.password.trim()).value != 'Strong')) {
                 return res.status(400).send({ error: "Invalid Password Criteria" });
             }
-            connection.query(`INSERT INTO application.users (email, password, created_at, is_active) VALUES(${connection.escape(req.body.email.trim())}, '${createHash('sha256').update(connection.escape(req.body.password.trim())).digest('hex')}', CURRENT_TIMESTAMP, b'1');`, function (err, results, fields) {
+            connection.query(`INSERT INTO application.users (name, email, password, created_at, is_active) VALUES(${connection.escape(req.body.name.trim())},${connection.escape(req.body.email.trim())}, '${createHash('sha256').update(connection.escape(req.body.password.trim())).digest('hex')}', CURRENT_TIMESTAMP, b'1');`, function (err, results, fields) {
                 if (err) {
                     return res.status(500).send({ error: "Something went wrong!" });
                 } else {
@@ -76,6 +76,7 @@ module.exports = function (connection) {
             })
         },
         login: function (req, res, next) {
+            let d = Math.floor(Date.now() / 1000)
             passport.authenticate("login", async (err, user, info) => {
                 try {
                     if (err || !user) {
@@ -85,11 +86,11 @@ module.exports = function (connection) {
                         if (error) {
                             return next(error);
                         }
-                        const expiry = Math.floor(Date.now() / 1000) + 60 * 60
+                        const expiry = d + 60 * 60
                         const token = jwt.sign(
                             {
-                                iat: Math.floor(Date.now() / 1000),
-                                nbf: Math.floor(Date.now() / 1000) + 2,
+                                iat: d,
+                                nbf: d,
                                 exp: expiry,
                                 iss: "https://api.tkaur.app",
                                 aud: "https://api.tkaur.app",

@@ -17,7 +17,7 @@
   border-radius: 3px;
   color: #4e4f63;
   cursor: pointer;
-  margin: 2px 10px !important;
+  margin: 2px 0 2px 0;
   padding: 2px 30px 2px 10px;
   position: relative;
   transition: all .3s;
@@ -93,6 +93,26 @@
   overflow-y: auto;
   max-height: calc((100vh - 220px) / 3);
   height: calc((100vh - 220px) / 3);
+  overflow-x: hidden;
+}
+
+.component-filter-tooltip{
+  text-align: left;
+  overflow: hidden;
+  white-space: pre-line;
+}
+
+.no-data:empty:before {
+  content: attr(nodata);
+  font-size: 15px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: transparent;
+  background: #697069;
+  -webkit-background-clip: text;
+  text-shadow: 2px 5px 5px rgba(255, 255, 255, 0.3);
 }
 
 code {
