@@ -7,8 +7,7 @@ const MeasureTag = ({
   yAxisList,
   handleYAxisAggregation,
   handleChangeColorPicker,
-  showColorPicker,
-  setShowColorPicker,
+  handleShowColorPicker,
   removeYAxisElement
 }) => {
   return yAxisList.map((yAxisItem) => {
@@ -35,7 +34,7 @@ const MeasureTag = ({
         </Col>
         <Col md={1}>
           <div
-            onClick={() => setShowColorPicker(true)}
+            onClick={() => handleShowColorPicker(true, yAxisItem?.column)}
             className="component-color-picker"
             style={{
               background: `${yAxisItem?.color}`,
@@ -43,12 +42,12 @@ const MeasureTag = ({
           >
             <div />
           </div>
-          {showColorPicker && (
+          {yAxisItem?.showColorPicker && (
             <div className="component-color-picker-popover">
               <div
                 className="component-color-picker-cover"
                 onClick={() => {
-                  setShowColorPicker(false);
+                  handleShowColorPicker(false, yAxisItem?.column);
                 }}
               />
               <SketchPicker

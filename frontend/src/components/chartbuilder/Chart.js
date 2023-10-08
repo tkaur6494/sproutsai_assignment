@@ -25,10 +25,13 @@ const chartConfig = {
     },
   },
 };
-const Chart = ({query_data}) => {
-  const [chartOptions, setChartOptions] = useState({})
+const Chart = ({ query_data }) => {
+  const [chartOptions, setChartOptions] = useState({});
   useEffect(() => {
-    if (query_data?.dimensions.length !== 0 && query_data?.measures.length !== 0) {
+    if (
+      query_data?.dimensions.length !== 0 &&
+      query_data?.measures.length !== 0
+    ) {
       axios
         .post(`${process.env.REACT_APP_API_BASE_PATH}/data`, query_data)
         .then((response) => {
@@ -39,11 +42,11 @@ const Chart = ({query_data}) => {
 
   return (
     <>
-      {chartOptions.series?.length!==0 ? <HighchartsReact
-        highcharts={Highcharts}
-        options={chartOptions}
-        
-      />:<div className="component-no-data-found">No data found</div>}
+      {chartOptions.series?.length !== 0 ? (
+        <HighchartsReact highcharts={Highcharts} options={chartOptions} />
+      ) : (
+        <div className="no-data" nodata="No data found"></div>
+      )}
     </>
   );
 };

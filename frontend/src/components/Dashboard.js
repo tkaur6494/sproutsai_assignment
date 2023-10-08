@@ -7,7 +7,7 @@ const ReactGridLayout = WidthProvider(Responsive);
 
 const Dashboard = ({ gridChartConf, onChartResize }) => {
   return (
-    <div className="App">
+    <div>
       <ReactGridLayout
         className="layout"
         layout={gridChartConf.map((item) => item?.grid)}
@@ -21,6 +21,7 @@ const Dashboard = ({ gridChartConf, onChartResize }) => {
         isResizable={true}
         preventCollision={false}
         onResizeStop={(item) => {onChartResize(item)}}
+        onDragStop={(item=>{onChartResize(item)})}
       >
         {gridChartConf.map((item) => {
           return (

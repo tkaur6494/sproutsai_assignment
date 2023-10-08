@@ -7,13 +7,14 @@ import {
   Button,
   OverlayTrigger,
   Tooltip,
+  ButtonGroup,
 } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import FilterModal from "./chartbuilder/FilterModal";
 import Chart from "./chartbuilder/Chart";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faInfo, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faInfo, faXmark, faAdd } from "@fortawesome/free-solid-svg-icons";
 import MeasureTag from "./chartbuilder/MeasureTag";
 
 const ChartGenerator = ({
@@ -21,7 +22,7 @@ const ChartGenerator = ({
   setShowChartBuilder,
   addChartToDashboard,
 }) => {
-  const [showColorPicker, setShowColorPicker] = useState(false);
+  
   const [xAxisList, setXAxisList] = useState([]);
   const [yAxisList, setYAxisList] = useState([]);
   const [filterList, setFilterList] = useState([]);
@@ -86,6 +87,16 @@ const ChartGenerator = ({
     let yAxisListUpdated = yAxisList.map((item) => {
       if (item?.column === yAxisItem) {
         return { ...item, color: colorPicked.hex };
+      }
+      return item;
+    });
+    setYAxisList(yAxisListUpdated);
+  };
+
+  const handleShowColorPicker = (showColorPicker, yAxisItem) => {
+    let yAxisListUpdated = yAxisList.map((item) => {
+      if (item?.column === yAxisItem) {
+        return { ...item, "showColorPicker": showColorPicker };
       }
       return item;
     });
@@ -202,8 +213,7 @@ const ChartGenerator = ({
                     yAxisList={yAxisList}
                     handleYAxisAggregation={handleYAxisAggregation}
                     handleChangeColorPicker={handleChangeColorPicker}
-                    showColorPicker={showColorPicker}
-                    setShowColorPicker={setShowColorPicker}
+                    handleShowColorPicker={handleShowColorPicker}
                     removeYAxisElement={removeYAxisElement}
                   />
                 </Card.Body>
@@ -266,30 +276,21 @@ const ChartGenerator = ({
           </Col>
           <Col md={7}>
             <Card className="component-card">
-              <Card.Header>Visualization</Card.Header>
-              <Card.Body className="no-data" nodata="Please select atleast one xAxis and one yAxis to continue.">
-                {xAxisList.length >= 1 && yAxisList.length >= 1 && (
-                  <>
-                    <Row className="component-chart-container">
-                      <Chart
-                        query_data={{
-                          dimensions: xAxisList,
-                          measures: yAxisList,
-                          filters: filterList,
-                        }}
-                      />
-                    </Row>
-                    <Row>
-                      <Col md={{ span: 3, offset: 7 }}>
+              <Card.Header>
+                <Row className="mx-0">
+                  <Col md={9} className="d-flex align-items-center">
+                    Visualization
+                  </Col>
+                  {xAxisList.length >= 1 && yAxisList.length >= 1 && (
+                    <Col md={{ span: 3 }} className="text-end">
+                      <ButtonGroup>
                         <Button
                           onClick={() => {
                             handleAddToDashboard();
                           }}
                         >
-                          Add to Dashboard
+                          <FontAwesomeIcon icon={faAdd} color="white" /> Add
                         </Button>
-                      </Col>
-                      <Col md={{ span: 1 }}>
                         <Button
                           onClick={() => {
                             resetChartBuilder();
@@ -297,8 +298,26 @@ const ChartGenerator = ({
                         >
                           Reset
                         </Button>
-                      </Col>
-                    </Row>
+                      </ButtonGroup>
+                    </Col>
+                  )}
+                </Row>
+              </Card.Header>
+              <Card.Body
+                className="no-data"
+                nodata="Please select atleast one xAxis and one yAxis to continue."
+              >
+                {xAxisList.length >= 1 && yAxisList.length >= 1 && (
+                  <>
+                    
+                      <Chart
+                        query_data={{
+                          dimensions: xAxisList,
+                          measures: yAxisList,
+                          filters: filterList,
+                        }}
+                      />
+                    
                   </>
                 )}
               </Card.Body>

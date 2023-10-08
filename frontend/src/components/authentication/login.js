@@ -35,7 +35,7 @@ export const Login = () => {
         });
       })
       .catch((error) => {
-        setError(error);
+        setError(error.response.data.error);
       });
   };
 
@@ -110,7 +110,7 @@ export const Login = () => {
                         Password
                       </label>
                     </div>
-
+                    <span className="link-danger">{isError}</span>
                     <div className="text-center text-lg-start mt-4 pt-2">
                       <button
                         type="submit"
@@ -124,7 +124,7 @@ export const Login = () => {
                           Register
                         </a>
                       </p>
-                      <span className="link-danger">{isError}</span>
+                      
                     </div>
                   </form>
                 </div>

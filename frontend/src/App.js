@@ -6,7 +6,6 @@ import {
   Button,
   Row,
   Col,
-  Card,
   Toast,
   ToastContainer,
 } from "react-bootstrap";
@@ -115,18 +114,19 @@ function App() {
           />
         )}
 
-        <Row className="component-row">
-          {gridChartConf.length === 0 ? (
-            <Card className="component-no-data-found">
-              Please add charts to view the dashboard
-            </Card>
-          ) : (
+        {gridChartConf.length === 0 ? (
+          <div className="no-data" nodata="Please add charts to view the dashboard">
+            
+          </div>
+        ) : (
+          <Row className="component-row">
             <Dashboard
               gridChartConf={gridChartConf}
               onChartResize={onChartResize}
             />
-          )}
-        </Row>
+          </Row>
+        )}
+
         {/* Dashboard saved successfully message */}
         <ToastContainer position="top-end">
           <Toast
@@ -148,7 +148,7 @@ function App() {
           expand="lg"
           className="bg-body-tertiary justify-content-end"
         >
-          <Row>
+          <Row className="mx-0">
             <Col md={{ span: 6 }}>
               <Navbar.Text>
                 <Button onClick={() => setShowChartBuilder(!showChartBuilder)}>
