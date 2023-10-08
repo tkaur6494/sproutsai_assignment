@@ -29,7 +29,7 @@ export const Login = () => {
     if (cookies["auth-cookie"]) {
       navigate("/", { replace: true });
     }
-  }, [cookies]);
+  }, [cookies, navigate]);
 
   return (
 

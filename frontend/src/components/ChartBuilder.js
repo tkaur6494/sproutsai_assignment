@@ -13,29 +13,6 @@ import Chart from "./chartbuilder/Chart";
 import { SketchPicker } from "react-color";
 import axios from "axios";
 
-const chartConfig = {
-  title: {
-    text: "",
-  },
-  credits: { enabled: false },
-  legend: { enabled: true },
-  xAxis: {
-    labels: {
-      enabled: true,
-    },
-  },
-  plotOptions: {
-    pie: {
-      allowPointSelect: true,
-      cursor: "pointer",
-      dataLabels: {
-        enabled: true,
-      },
-      showInLegend: true,
-    },
-  },
-};
-
 const ChartBuilder = ({
   showChartBuilder,
   setShowChartBuilder,
@@ -48,8 +25,7 @@ const ChartBuilder = ({
   const [columnFilter, setColumnFilter] = useState(" ");
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [columnNameList, setColumnNameList] = useState([]);
-  const [chartColor, setChartColor] = useState("#2CAFFE");
-  const [chartOptions, setChartOptions] = useState({});
+ 
 
   useEffect(() => {
     axios
@@ -59,22 +35,6 @@ const ChartBuilder = ({
       })
       .catch((error) => {});
   }, []);
-
-  useEffect(() => {
-    if (xAxisList.length !== 0 && yAxisList.length !== 0) {
-      let data = {
-        dimensions: xAxisList,
-        measures: yAxisList,
-        filters: filterList,
-      };
-      axios
-        .post(`${process.env.REACT_APP_API_BASE_PATH}/data`, data)
-        .then((response) => {
-          setChartOptions({ ...chartConfig, ...response?.data });
-          // console.log(response.data);
-        });
-    }
-  }, [xAxisList, yAxisList, filterList]);
 
   const onDragStart = (ev, columnName) => {
     ev.dataTransfer.setData("columnName", columnName);
@@ -90,7 +50,10 @@ const ChartBuilder = ({
   const onDropYAxis = (ev) => {
     let columnName = ev.dataTransfer.getData("columnName");
     if (!yAxisList.filter((item) => item?.column === columnName).length > 0) {
-      setYAxisList([...yAxisList, { column: columnName, aggregation: "COUNT" }]);
+      setYAxisList([
+        ...yAxisList,
+        { column: columnName, aggregation: "COUNT", color:"#2CAFFE" },
+      ]);
     }
   };
 
@@ -113,21 +76,24 @@ const ChartBuilder = ({
     ]);
   };
 
-  const handleChangeColorPicker = (colorPicked) => {
-    setChartColor(colorPicked.hex);
-    setChartOptions({
-      ...chartOptions,
-      series: [
-        {
-          ...chartOptions.series[0],
-          color: `${colorPicked.hex}`,
-        },
-      ],
+  const handleChangeColorPicker = (colorPicked, yAxisItem) => {
+    let yAxisListUpdated = yAxisList.map((item) => {
+      if (item?.column === yAxisItem) {
+        return { ...item, color: colorPicked.hex};
+      }
+      return item;
     });
+    setYAxisList(yAxisListUpdated);
   };
 
-  const handleAddToDashboard = (chartOptions) => {
-    addChartToDashboard(chartOptions);
+  const handleAddToDashboard = () => {
+    addChartToDashboard(
+      {
+        dimensions: xAxisList,
+        measures: yAxisList,
+        filters: filterList,
+      }
+    );
     setShowChartBuilder(false);
   };
 
@@ -141,12 +107,11 @@ const ChartBuilder = ({
     setYAxisList(yAxisListUpdated);
   };
 
-  const resetChartBuilder  = () => {
-    setXAxisList([])
-    setYAxisList([])
-    setFilterList([])
-    setChartColor("#2CAFFE")
-  }
+  const resetChartBuilder = () => {
+    setXAxisList([]);
+    setYAxisList([]);
+    setFilterList([]);
+  };
 
   return (
     <Modal show={showChartBuilder} fullscreen={true}>
@@ -233,7 +198,7 @@ const ChartBuilder = ({
                             >
                               <option value="COUNT">Count</option>
                               <option value="SUM">Sum</option>
-                              <option value="AVERAGE">Avg</option>
+                              <option value="AVG">Avg</option>
                             </Form.Select>
                           </Form>
                         </span>
@@ -243,7 +208,7 @@ const ChartBuilder = ({
                           onClick={() => setShowColorPicker(true)}
                           className="component-color-picker"
                           style={{
-                            background: `${chartColor}`,
+                            background: `${yAxisItem?.color}`,
                           }}
                         >
                           <div />
@@ -257,9 +222,9 @@ const ChartBuilder = ({
                               }}
                             />
                             <SketchPicker
-                              color={chartColor}
+                              color={yAxisItem?.color}
                               onChange={(colorPicked) => {
-                                handleChangeColorPicker(colorPicked);
+                                handleChangeColorPicker(colorPicked, yAxisItem?.column);
                               }}
                             />
                           </div>
@@ -305,13 +270,19 @@ const ChartBuilder = ({
                 {xAxisList.length >= 1 && yAxisList.length >= 1 ? (
                   <>
                     <Row className="component-chart-container">
-                      <Chart chartOptions={chartOptions} />
+                      <Chart
+                        query_data={{
+                          dimensions: xAxisList,
+                          measures: yAxisList,
+                          filters: filterList,
+                        }}
+                      />
                     </Row>
                     <Row>
                       <Col md={{ span: 3, offset: 7 }}>
                         <Button
                           onClick={() => {
-                            handleAddToDashboard(chartOptions);
+                            handleAddToDashboard();
                           }}
                         >
                           Add to Dashboard

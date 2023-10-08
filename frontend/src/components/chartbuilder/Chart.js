@@ -1,20 +1,49 @@
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
-const Chart = ({ chartOptions, innerRef, isResized }) => {
+const chartConfig = {
+  title: {
+    text: "",
+  },
+  credits: { enabled: false },
+  legend: { enabled: true },
+  xAxis: {
+    labels: {
+      enabled: true,
+    },
+  },
+  plotOptions: {
+    pie: {
+      allowPointSelect: true,
+      cursor: "pointer",
+      dataLabels: {
+        enabled: true,
+      },
+      showInLegend: true,
+    },
+  },
+};
+const Chart = ({query_data}) => {
+  const [chartOptions, setChartOptions] = useState({})
   useEffect(() => {
-    let chart = innerRef?.current.chart;
-    if(chart){
-      chart.reflow(false)
+    if (query_data?.dimensions.length !== 0 && query_data?.measures.length !== 0) {
+      axios
+        .post(`${process.env.REACT_APP_API_BASE_PATH}/data`, query_data)
+        .then((response) => {
+          setChartOptions({ ...chartConfig, ...response?.data });
+          // console.log(response.data);
+        });
     }
-  }, [isResized]);
+  }, [query_data]);
+
   return (
     <>
       <HighchartsReact
         highcharts={Highcharts}
         options={chartOptions}
-        ref={innerRef}
+
       />
     </>
   );
