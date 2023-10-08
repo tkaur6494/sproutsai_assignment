@@ -38,7 +38,7 @@ function App() {
           x: positionX,
           y: positionY,
           h: 6,
-          w: 4,
+          w: 30,
           isResizable: true,
           isDraggable: true,
         },

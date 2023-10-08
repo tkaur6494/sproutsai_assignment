@@ -28,7 +28,7 @@ function verify_input(input, columns, connection) {
         if (columns_table.indexOf(element.column) == -1 || allowed_conditions.indexOf(element.condition) == -1) {
             return false;
         } else {
-            filter += `${element.column}${element.condition}${connection.escape(element.value)}`
+            filter += `\`${element.column}\`${element.condition}${connection.escape(element.value)}`
         }
     });
     if (filter.length) {
@@ -42,6 +42,14 @@ function determine_chart_type(data) {
 
     if (data.series.length == 1 && data.xAxis.categories.length <= 5) {
         data.chart.type = "pie"
+        let series = []
+        for (i in data.xAxis.categories) {
+            series.push({
+                "name": data.xAxis.categories[i],
+                "y": data.series[0].data[i]
+            })
+        }
+        data.series[0].data=series
     } else {
         data.chart.type = "bar"
     }
@@ -49,7 +57,7 @@ function determine_chart_type(data) {
 }
 function process_data(result) {
     // {"type":"","series":[{"name": "","data": []}],"categories":[]}
-    let response = { "series": [], "xAxis": { "categories": [], "title": { "text": "" }, }, "chart": { "type": "bar" } }
+    let response = { "series": [], "xAxis": { "categories": [], "title": { "text": "" }, "labels":{"enabled": true}}, "chart": { "type": "bar" } }
     let temp = {}
     result.forEach(element => {
         for (e in element) {

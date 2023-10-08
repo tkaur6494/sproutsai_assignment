@@ -13,34 +13,68 @@ import Chart from "./chartbuilder/Chart";
 import { SketchPicker } from "react-color";
 import axios from "axios";
 
+const chartConfig = {
+  title: {
+    text: "",
+  },
+  credits: { enabled: false },
+  legend: { enabled: true },
+  xAxis: {
+    labels: {
+      enabled: true,
+    },
+  },
+  plotOptions: {
+    pie: {
+      allowPointSelect: true,
+      cursor: "pointer",
+      dataLabels: {
+        enabled: true,
+      },
+      showInLegend: true,
+    },
+  },
+};
+
 const ChartBuilder = ({
   showChartBuilder,
   setShowChartBuilder,
   addChartToDashboard,
 }) => {
-  const list_dimensions = [
-    "Gender",
-    "Race/Ethnicity",
-    "Parental Level of Education",
-    "Lunch",
-    "Test Preparation Score",
-    "Math Score",
-    "Reading Score",
-    "Writing Score",
-  ];
-
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [xAxisList, setXAxisList] = useState([]);
   const [yAxisList, setYAxisList] = useState([]);
   const [filterList, setFilterList] = useState([]);
   const [columnFilter, setColumnFilter] = useState(" ");
   const [showFilterModal, setShowFilterModal] = useState(false);
-  const [columnNameList, setColumnNameList] = useState(list_dimensions);
+  const [columnNameList, setColumnNameList] = useState([]);
   const [chartColor, setChartColor] = useState("#2CAFFE");
   const [chartOptions, setChartOptions] = useState({});
 
   useEffect(() => {
+    axios
+      .get(`${process.env.REACT_APP_API_BASE_PATH}/columns`)
+      .then((response) => {
+        setColumnNameList(response?.data);
+      })
+      .catch((error) => {});
   }, []);
+
+  useEffect(() => {
+    if (xAxisList.length !== 0 && yAxisList.length !== 0) {
+      let data = {
+        dimensions: xAxisList,
+        measures: yAxisList,
+        filters: filterList,
+      };
+      axios
+        .post(`${process.env.REACT_APP_API_BASE_PATH}/data`, data)
+        .then((response) => {
+          setChartOptions({ ...chartConfig, ...response?.data });
+          // console.log(response.data);
+        });
+    }
+  }, [xAxisList, yAxisList, filterList]);
 
   const onDragStart = (ev, columnName) => {
     ev.dataTransfer.setData("columnName", columnName);
@@ -48,42 +82,22 @@ const ChartBuilder = ({
 
   const onDropXAxis = (ev) => {
     let columnName = ev.dataTransfer.getData("columnName");
-    setXAxisList([...xAxisList, columnName]);
-    setColumnNameList(columnNameList.filter((item) => item !== columnName));
+    if (!xAxisList.filter((item) => item === columnName).length > 0) {
+      setXAxisList([...xAxisList, columnName]);
+    }
   };
 
   const onDropYAxis = (ev) => {
     let columnName = ev.dataTransfer.getData("columnName");
-    setYAxisList([...yAxisList, columnName]);
-    setColumnNameList(columnNameList.filter((item) => item !== columnName));
-    setChartOptions({
-      chart: {
-        type: "bar",
-      },
-      title: {
-        text: "",
-      },
-      credits: { enabled: false },
-      series: [
-        {
-          type: "bar",
-          data: [1, 2, 3],
-        },
-      ],
-      xAxis: {
-        categories: ["Foo", "Bar", "Baz"],
-        labels: {
-          useHTML: true,
-        },
-      },
-    });
+    if (!yAxisList.filter((item) => item?.column === columnName).length > 0) {
+      setYAxisList([...yAxisList, { column: columnName, aggregation: "COUNT" }]);
+    }
   };
 
   const onDropFilter = (ev) => {
     let columnName = ev.dataTransfer.getData("columnName");
     setShowFilterModal(true);
     setColumnFilter(columnName);
-    setColumnNameList(columnNameList.filter((item) => item !== columnName));
   };
 
   const onCancelModel = () => {
@@ -116,6 +130,23 @@ const ChartBuilder = ({
     addChartToDashboard(chartOptions);
     setShowChartBuilder(false);
   };
+
+  const handleYAxisAggregation = (e, yAxisItem) => {
+    let yAxisListUpdated = yAxisList.map((item) => {
+      if (item?.column === yAxisItem) {
+        return { ...item, aggregation: e.target.value };
+      }
+      return item;
+    });
+    setYAxisList(yAxisListUpdated);
+  };
+
+  const resetChartBuilder  = () => {
+    setXAxisList([])
+    setYAxisList([])
+    setFilterList([])
+    setChartColor("#2CAFFE")
+  }
 
   return (
     <Modal show={showChartBuilder} fullscreen={true}>
@@ -182,21 +213,29 @@ const ChartBuilder = ({
                 <Card.Header>yAxis</Card.Header>
                 {yAxisList.map((yAxisItem) => {
                   return (
-                    // <div className="component-draggable" key={yAxisItem}>
-                    <Row className="component-draggable">
+                    <Row
+                      className="component-draggable"
+                      key={yAxisItem?.column}
+                    >
                       <Col md={6}>
                         <span className="component-draggable-text">
-                          {yAxisItem}
+                          {yAxisItem?.column}
                         </span>
                       </Col>
                       <Col md={5}>
                         <span className="component-draggable-select">
-                          <Form.Select className="form-select-draggable">
-                            {/* <option>Open this select menu</option> */}
-                            <option value="count">Count</option>
-                            <option value="sum">Sum</option>
-                            <option value="avg">Avg</option>
-                          </Form.Select>
+                          <Form>
+                            <Form.Select
+                              className="form-select-draggable"
+                              onChange={(value) =>
+                                handleYAxisAggregation(value, yAxisItem?.column)
+                              }
+                            >
+                              <option value="COUNT">Count</option>
+                              <option value="SUM">Sum</option>
+                              <option value="AVERAGE">Avg</option>
+                            </Form.Select>
+                          </Form>
                         </span>
                       </Col>
                       <Col md={1}>
@@ -269,13 +308,22 @@ const ChartBuilder = ({
                       <Chart chartOptions={chartOptions} />
                     </Row>
                     <Row>
-                      <Col md={{ span: 3, offset: 9 }}>
+                      <Col md={{ span: 3, offset: 7 }}>
                         <Button
                           onClick={() => {
                             handleAddToDashboard(chartOptions);
                           }}
                         >
                           Add to Dashboard
+                        </Button>
+                      </Col>
+                      <Col md={{ span: 1 }}>
+                        <Button
+                          onClick={() => {
+                            resetChartBuilder();
+                          }}
+                        >
+                          Reset
                         </Button>
                       </Col>
                     </Row>

@@ -16,7 +16,9 @@ export const LoginRegister = () => {
         "Content-Type": "application/json",
       })
       .then((response) => {
-        setCookie("auth-cookie", JSON.stringify(response.data), { path: "/" });
+        var d = new Date(0); 
+        d.setUTCSeconds(response.data.expiry);
+        setCookie("auth-cookie", JSON.stringify(response.data), { path: "/", expires:d });
       })
       .catch((error) => {});
   };
@@ -25,7 +27,7 @@ export const LoginRegister = () => {
     if (cookies["auth-cookie"]) {
       navigate("/", { replace: true });
     }
-  }, [cookies]);
+  }, [cookies, navigate]);
 
   return (
     <form
