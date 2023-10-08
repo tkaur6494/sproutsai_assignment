@@ -17,7 +17,7 @@ export const Register = () => {
         navigate("/login?account_created=1")
       })
       .catch((error) => {
-        setError(error)
+        setError(error.response.data.error)
       });
   };
 
@@ -49,18 +49,18 @@ export const Register = () => {
 
                   <div className="form-outline mb-4">
                     <input type="email" id="email" placeholder="someone@gmail.com" required name="email" className="form-control" />
-                    <label className="form-label" for="email">Email address</label>
+                    <label className="form-label" htmlFor="email">Email address</label>
                   </div>
 
                   <div className="form-outline mb-4">
                     <input type="password" id="password" placeholder="****************" required name="password" className="form-control" />
-                    <label className="form-label" for="password">Password</label>
+                    <label className="form-label" htmlFor="password">Password</label>
                   </div>
-
+                  <p  className="link-danger">{isError}</p>
                   <button type="submit" className="btn btn-primary btn-block mb-4">
                     Signup
                   </button>
-                  <span  className="link-danger">{isError}</span>
+                  
                 </form>
               </div>
             </div>

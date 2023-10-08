@@ -10,7 +10,7 @@ import {
   Toast,
   ToastContainer,
 } from "react-bootstrap";
-import ChartBuilder from "./components/ChartBuilder";
+import ChartGenerator from "./components/ChartGenerator";
 import Dashboard from "./components/Dashboard";
 import { v4 as uuidv4 } from "uuid";
 import { useCookies } from "react-cookie";
@@ -27,20 +27,24 @@ function App() {
       config.headers.Authorization = `Bearer ${cookies["auth-cookie"].token}`;
       return config;
     });
-  }, [cookies]);
+  }, []);
 
   useEffect(() => {
     axios
       .get(`${process.env.REACT_APP_API_BASE_PATH}/retrieve`)
       .then((response) => {
-        setGridChartConf(response?.data?.[0]?.configuration);
+        setGridChartConf(response?.data?.[0]?.configuration || []);
       })
-      .catch((error) => {});
+      .catch((error) => {
+        setGridChartConf([]);
+      });
   }, []);
 
+  // save chart to dashboard by adding x,y,height and width
   const addChartToDashboard = (query_data) => {
     let positionX = 0;
     let positionY = 0;
+    // code logic for placing charts side by side in react-grid-layout
     if (gridChartConf.length > 0) {
       positionX = gridChartConf[gridChartConf.length - 1].grid.x + 4;
       if (positionX >= 12) {
@@ -64,6 +68,7 @@ function App() {
   };
 
   const onChartResize = (resizedObject) => {
+    // saving new x,y height and width after resizing
     setGridChartConf(
       gridChartConf.map((item, index) => {
         let resizedEle = resizedObject.filter(
@@ -83,81 +88,85 @@ function App() {
       .post(`${process.env.REACT_APP_API_BASE_PATH}/save`, gridChartConf)
       .then((response) => {
         setDisplaySuccess(true);
-        console.log(response);
-        // console.log(response.data);
       });
   };
 
   return (
-    <Container fluid={true}>
-      <Navbar className="bg-body-tertiary">
-        <Navbar.Brand href="#home">Analytics Dashboard</Navbar.Brand>
-        <Navbar.Toggle />
+    <>
+      <Container fluid={true}>
+        <Navbar sticky="top" className="bg-body-tertiary">
+          <Navbar.Brand href="#home">Analytics Dashboard</Navbar.Brand>
+          <Navbar.Toggle />
 
-        <Navbar.Collapse className="justify-content-end">
-          {gridChartConf.length > 0 && (
-            <Col md={{ span: 2, offset: 4 }}>
+          <Navbar.Collapse className="justify-content-end">
+            <Col md={{ span: 2 }}>
               <Navbar.Text>
-                <Button onClick={() => saveToDashboard()}>
-                  Save Dashboard
+                Signed in as: <a href="#login">{cookies["auth-cookie"].email}</a>
+              </Navbar.Text>
+            </Col>
+          </Navbar.Collapse>
+        </Navbar>
+        {/* Chart generator for adding charts to dashboard */}
+        {showChartBuilder && (
+          <ChartGenerator
+            showChartBuilder
+            setShowChartBuilder={setShowChartBuilder}
+            addChartToDashboard={addChartToDashboard}
+          />
+        )}
+
+        <Row className="component-row">
+          {gridChartConf.length === 0 ? (
+            <Card className="component-no-data-found">
+              Please add charts to view the dashboard
+            </Card>
+          ) : (
+            <Dashboard
+              gridChartConf={gridChartConf}
+              onChartResize={onChartResize}
+            />
+          )}
+        </Row>
+        {/* Dashboard saved successfully message */}
+        <ToastContainer position="top-end">
+          <Toast
+            bg="success"
+            autohide={true}
+            delay={3000}
+            onClose={() => {
+              setDisplaySuccess(false);
+            }}
+            show={displaySuccess}
+          >
+            <Toast.Body className="text-white">
+              Dashboard saved successfully.
+            </Toast.Body>
+          </Toast>
+        </ToastContainer>
+        <Navbar
+          fixed="bottom"
+          expand="lg"
+          className="bg-body-tertiary justify-content-end"
+        >
+          <Row>
+            <Col md={{ span: 6 }}>
+              <Navbar.Text>
+                <Button onClick={() => setShowChartBuilder(!showChartBuilder)}>
+                  Add
                 </Button>
               </Navbar.Text>
             </Col>
-          )}
-          <Col md={{ span: 1 }}>
-            <Navbar.Text>
-              <Button onClick={() => setShowChartBuilder(!showChartBuilder)}>
-                Add Chart
-              </Button>
-            </Navbar.Text>
-          </Col>
-          <Col md={{ span: 2 }}>
-            <Navbar.Text>
-              Signed in as: <a href="#login">Mark Otto</a>
-            </Navbar.Text>
-          </Col>
-        </Navbar.Collapse>
-      </Navbar>
-
-      {showChartBuilder && (
-        <ChartBuilder
-          showChartBuilder
-          setShowChartBuilder={setShowChartBuilder}
-          addChartToDashboard={addChartToDashboard}
-        />
-      )}
-
-      <Row className="component-row">
-        {gridChartConf.length === 0 ? (
-          <Card className="component-card">
-            Please add charts to view the dashboard
-          </Card>
-        ) : (
-          <Dashboard
-            gridChartConf={gridChartConf}
-            onChartResize={onChartResize}
-          />
-        )}
-      </Row>
-      <ToastContainer position="top-end">
-        <Toast
-          bg="success"
-          autohide={true}
-          delay={3000}
-          onClose={()=>{setDisplaySuccess(false)}}
-          show={displaySuccess}
-        >
-          <Toast.Body className="text-white">
-            Dashboard saved successfully.
-          </Toast.Body>
-        </Toast>
-      </ToastContainer>
-      <footer class="footer">
-      <div class="container">
-        <span class="text-muted">Place sticky footer content here.</span>
-      </div>
-    </footer>
-    </Container>
+            {gridChartConf?.length > 0 && (
+              <Col md={{ span: 6 }}>
+                <Navbar.Text>
+                  <Button onClick={() => saveToDashboard()}>Save</Button>
+                </Navbar.Text>
+              </Col>
+            )}
+          </Row>
+        </Navbar>
+      </Container>
+    </>
   );
 }
 

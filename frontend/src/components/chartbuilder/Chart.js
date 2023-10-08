@@ -33,18 +33,17 @@ const Chart = ({query_data}) => {
         .post(`${process.env.REACT_APP_API_BASE_PATH}/data`, query_data)
         .then((response) => {
           setChartOptions({ ...chartConfig, ...response?.data });
-          // console.log(response.data);
         });
     }
   }, [query_data]);
 
   return (
     <>
-      <HighchartsReact
+      {chartOptions.series?.length!=0 ? <HighchartsReact
         highcharts={Highcharts}
         options={chartOptions}
-
-      />
+        
+      />:<div className="component-no-data-found">No data found</div>}
     </>
   );
 };

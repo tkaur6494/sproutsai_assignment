@@ -32,7 +32,6 @@ const Dashboard = ({ gridChartConf, onChartResize }) => {
                 y: item?.grid?.y,
                 w: item?.grid?.w,
               }}
-              // className="component-chart-container"
             >
               <Chart
                 query_data={item?.query_data}
