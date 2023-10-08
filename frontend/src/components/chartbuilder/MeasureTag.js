@@ -1,5 +1,7 @@
 import { SketchPicker } from "react-color";
 import { Row, Col, Form } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
 const MeasureTag = ({
   yAxisList,
@@ -7,11 +9,12 @@ const MeasureTag = ({
   handleChangeColorPicker,
   showColorPicker,
   setShowColorPicker,
+  removeYAxisElement
 }) => {
   return yAxisList.map((yAxisItem) => {
     return (
       <Row className="component-draggable" key={yAxisItem?.column}>
-        <Col md={6}>
+        <Col md={5}>
           <span className="component-draggable-text">{yAxisItem?.column}</span>
         </Col>
         <Col md={5}>
@@ -56,6 +59,9 @@ const MeasureTag = ({
               />
             </div>
           )}
+        </Col>
+        <Col md={1}>
+          <FontAwesomeIcon icon={faXmark} color="#0d6efd" onClick={()=>removeYAxisElement(yAxisItem?.column)}/>
         </Col>
       </Row>
     );

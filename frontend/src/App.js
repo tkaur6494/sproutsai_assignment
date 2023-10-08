@@ -101,7 +101,7 @@ function App() {
           <Navbar.Collapse className="justify-content-end">
             <Col md={{ span: 2 }}>
               <Navbar.Text>
-                Signed in as: <a href="#login">{cookies["auth-cookie"].email}</a>
+                Signed in as: {cookies["auth-cookie"].email}
               </Navbar.Text>
             </Col>
           </Navbar.Collapse>

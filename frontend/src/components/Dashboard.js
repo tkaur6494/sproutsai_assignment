@@ -19,7 +19,7 @@ const Dashboard = ({ gridChartConf, onChartResize }) => {
         resizeHandles={["s", "w", "e", "n", "sw", "nw", "se", "ne"]}
         allowOverlap={false}
         isResizable={true}
-        preventCollision={true}
+        preventCollision={false}
         onResizeStop={(item) => {onChartResize(item)}}
       >
         {gridChartConf.map((item) => {

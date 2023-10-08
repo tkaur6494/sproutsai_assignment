@@ -13,7 +13,7 @@ import FilterModal from "./chartbuilder/FilterModal";
 import Chart from "./chartbuilder/Chart";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faInfo } from "@fortawesome/free-solid-svg-icons";
+import { faInfo, faXmark } from "@fortawesome/free-solid-svg-icons";
 import MeasureTag from "./chartbuilder/MeasureTag";
 
 const ChartGenerator = ({
@@ -46,7 +46,10 @@ const ChartGenerator = ({
   // drag and drop from list of columns to x axis, yaxis and filters
   const onDropXAxis = (ev) => {
     let columnName = ev.dataTransfer.getData("columnName");
-    if (!xAxisList.filter((item) => item === columnName).length > 0) {
+    if (
+      !xAxisList.filter((item) => item === columnName).length > 0 &&
+      xAxisList.length == 0
+    ) {
       setXAxisList([...xAxisList, columnName]);
     }
   };
@@ -67,7 +70,6 @@ const ChartGenerator = ({
     setColumnFilter(columnName);
   };
 
-  
   const onCancelModel = () => {
     setShowFilterModal(false);
   };
@@ -115,6 +117,18 @@ const ChartGenerator = ({
     setFilterList([]);
   };
 
+  const removeXAxisElement = (xAxisItem) => {
+    setXAxisList(xAxisList.filter((item) => item != xAxisItem));
+  };
+
+  const removeYAxisElement = (yAxisItem) => {
+    setYAxisList(yAxisList.filter((item) => item?.column != yAxisItem));
+  };
+
+  const removeFilterElement = (filterItem) => {
+    setFilterList(filterList.filter((item) => item?.column != filterItem));
+  };
+
   return (
     <Modal show={showChartBuilder} fullscreen={true}>
       <Modal.Header
@@ -152,18 +166,24 @@ const ChartGenerator = ({
             <Card className="component-card">
               {/* <Card.Body> */}
               <div
-                style={{ height: "33%" }}
                 onDragOver={(e) => {
                   e.preventDefault();
                 }}
                 onDrop={(ev) => onDropXAxis(ev)}
               >
-                <Card.Header>x Axis</Card.Header>
-                <Card.Body>
+                <Card.Header>xAxis</Card.Header>
+                <Card.Body className="draggable-container">
                   {xAxisList.map((xAxisItem) => {
                     return (
                       <div className="component-draggable" key={xAxisItem}>
-                        <Col md={12}>{xAxisItem}</Col>
+                        <Col md={11}>{xAxisItem}</Col>
+                        <Col md={1}>
+                          <FontAwesomeIcon
+                            icon={faXmark}
+                            color="#0d6efd"
+                            onClick={() => removeXAxisElement(xAxisItem)}
+                          />
+                        </Col>
                       </div>
                     );
                   })}
@@ -171,46 +191,55 @@ const ChartGenerator = ({
               </div>
 
               <div
-                style={{ height: "33%" }}
                 onDragOver={(e) => {
                   e.preventDefault();
                 }}
                 onDrop={(ev) => onDropYAxis(ev)}
               >
                 <Card.Header>yAxis</Card.Header>
-                <MeasureTag
-                  yAxisList={yAxisList}
-                  handleYAxisAggregation={handleYAxisAggregation}
-                  handleChangeColorPicker={handleChangeColorPicker}
-                  showColorPicker={showColorPicker}
-                  setShowColorPicker={setShowColorPicker}
-                />
+                <Card.Body className="draggable-container">
+                  <MeasureTag
+                    yAxisList={yAxisList}
+                    handleYAxisAggregation={handleYAxisAggregation}
+                    handleChangeColorPicker={handleChangeColorPicker}
+                    showColorPicker={showColorPicker}
+                    setShowColorPicker={setShowColorPicker}
+                    removeYAxisElement={removeYAxisElement}
+                  />
+                </Card.Body>
               </div>
               <div
-                style={{ height: "33%" }}
                 onDragOver={(e) => {
                   e.preventDefault();
                 }}
                 onDrop={(ev) => onDropFilter(ev)}
               >
                 <Card.Header>Filter</Card.Header>
-
-                {filterList.map((item) => {
-                  return (
-                    <div className="component-draggable" key={item?.column}>
-                      <Col md={11}>{item?.column}</Col>
-                      <OverlayTrigger
-                        overlay={
-                          <Tooltip>{`Column Name: ${item?.column} \r\n Condition: ${item?.condition} \r\n Values: ${item?.value}`}</Tooltip>
-                        }
-                      >
+                <Card.Body className="draggable-container">
+                  {filterList.map((item) => {
+                    return (
+                      <div className="component-draggable" key={item?.column}>
+                        <Col md={10}>{item?.column}</Col>
+                        <OverlayTrigger
+                          overlay={
+                            <Tooltip>{`Column Name: ${item?.column} \r\n Condition: ${item?.condition} \r\n Values: ${item?.value}`}</Tooltip>
+                          }
+                        >
+                          <Col md={1}>
+                            <FontAwesomeIcon icon={faInfo} color="#0d6efd" />
+                          </Col>
+                        </OverlayTrigger>
                         <Col md={1}>
-                          <FontAwesomeIcon icon={faInfo} color="#0d6efd" />
+                          <FontAwesomeIcon
+                            icon={faXmark}
+                            color="#0d6efd"
+                            onClick={() => removeFilterElement(item?.column)}
+                          />
                         </Col>
-                      </OverlayTrigger>
-                    </div>
-                  );
-                })}
+                      </div>
+                    );
+                  })}
+                </Card.Body>
                 <FilterModal
                   columnName={columnFilter}
                   showFilterModal={showFilterModal}

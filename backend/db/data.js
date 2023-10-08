@@ -27,16 +27,20 @@ function verify_input(input, columns, connection) {
   });
   query += "from `data` ";
   let filter = "";
-  input.filters.forEach((element) => {
+  input.filters.forEach((element, index) => {
     if (
       columns_table.indexOf(element.column) == -1 ||
       allowed_conditions.indexOf(element.condition) == -1
     ) {
       return false;
     } else {
+      let andCondition = "and";
+      if (input.filters.length - 1 == index) {
+        andCondition = "";
+      }
       filter += `\`${element.column}\`${element.condition}${connection.escape(
         element.value
-      )}`;
+      )} ${andCondition}`;
     }
   });
   if (filter.length) {
@@ -83,7 +87,7 @@ function process_data(result, input) {
     for (item of aggregation) {
       if (e.startsWith(`${item}(`)) {
         let color = input.measures.filter((el) => {
-            return `${el.aggregation}(\`${el.column}\`)` == e;
+          return `${el.aggregation}(\`${el.column}\`)` == e;
         });
         response.series.push({ name: e, data: temp[e], color: color[0].color });
         is_aggregate = true;

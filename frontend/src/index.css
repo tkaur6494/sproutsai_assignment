@@ -79,10 +79,20 @@
   padding:10px;
 }
 
+[data-highcharts-chart] {
+  height: 100%;
+}
+
 .component-no-data-found{
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.draggable-container {
+  overflow-y: auto;
+  max-height: calc((100vh - 220px) / 3);
+  height: calc((100vh - 220px) / 3);
 }
 
 code {

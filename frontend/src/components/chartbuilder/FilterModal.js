@@ -6,7 +6,6 @@ const FilterModal = ({ columnName, showFilterModal, onCancelModel, onSaveFilter 
   const [textValue, setTextValue] = useState("")
   
   return (
-    <Container fluid={true}>
       <Modal show={showFilterModal} centered className="component-filter-modal">
         <Modal.Header
           closeButton={true}
@@ -43,7 +42,6 @@ const FilterModal = ({ columnName, showFilterModal, onCancelModel, onSaveFilter 
           </Col>
         </Modal.Footer>
       </Modal>
-    </Container>
   );
 };
 
