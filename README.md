@@ -5,7 +5,10 @@
 
 # How to Deploy Application
 
-1. Run `docker-compose up --force-recreate  --remove-orphans --renew-anon-volumes --build`
+1. Run `docker-compose up --force-recreate  --remove-orphans --renew-anon-volumes --build`.
+2. Open `http://localhost` on browser.
+
+> Note: Ensure PORT `8080`,`80` is available  
 
 # Project Structure
 
